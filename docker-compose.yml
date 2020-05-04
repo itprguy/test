@@ -18,9 +18,9 @@ services:
     redis:
         image: redis
         container_name: redis
-    volumes:
-        mysql: null
-        wordpress: null
+        volumes:
+          mysql: null
+          wordpress: null
 
 labels:
       - "traefik.enable=true"
