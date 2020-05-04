@@ -1,0 +1,41 @@
+version: '3.3'
+
+services:
+    wordpress:
+        container_name: wordpress
+        image: wordpress
+        volumes:
+            - '/media/usb-data/html:/var/www/html'
+        env_file:
+            - blog_env
+    mysql:
+        container_name: mysql
+        image: hypriot/rpi-mysql
+        volumes:
+            - '/media/usb-data/data:/var/lib/mysql'
+        env_file:
+            - mysql_env
+    redis:
+        image: redis
+        container_name: redis
+    volumes:
+        mysql: null
+        wordpress: null
+
+labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.wp.entrypoints=http"
+      - "traefik.http.routers.wp.rule=Host(`wp.webhostpr.com`)"
+      - "traefik.http.middlewares.wp-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.wp.middlewares=wp-https-redirect"
+      - "traefik.http.routers.wp-secure.entrypoints=https"
+      - "traefik.http.routers.wp-secure.rule= Host(`wp.webhostpr.com`)"
+      - "traefik.http.routers.wp-secure.tls= true"
+      - "traefik.http.routers.wp-secure.tls.certresolver= http"
+      - "traefik.http.routers.wp-secure.service= wp"
+      - "traefik.http.services.wp.loadbalancer.server.port= 9000"
+      - "traefik.docker.network= proxy"
+
+networks:
+      proxy:
+        external: true
